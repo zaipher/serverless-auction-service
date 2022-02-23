@@ -1,3 +1,5 @@
+org: cristopherz
+app: auction-services
 service: auction-service
 frameworkVersion: '3'
 
@@ -11,6 +13,12 @@ provider:
   memorySize: 256
   region: ap-southeast-1
   stage: ${opt:stage, 'dev'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+        - arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/AuctionsTable
 
 # you can define service wide environment variables here
 #  environment:
@@ -23,6 +31,20 @@ provider:
 #    - '!exclude-me-dir/**'
 #    - include-me.js
 #    - include-me-dir/**
+
+resources:
+  Resources:
+    AuctionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: AuctionsTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
 
 functions:
   hello:
